@@ -1,0 +1,19 @@
+# Copy this file to terraform.tfvars and customize the values
+
+# AWS Configuration
+aws_region = "us-east-1"
+
+# Project Configuration
+project_name = "lambda-alb-translate"
+environment  = "dev"
+
+# VPC Configuration (existing VPC and subnets)
+vpc_id = "vpc-xxxxxxxxx"
+
+# Subnet Configuration (existing subnet IDs)
+public_subnet_ids  = ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
+private_subnet_ids = ["subnet-zzzzzzzzz", "subnet-aaaaaaaaa"]
+
+# Lambda Configuration
+lambda_memory_size = 256
+lambda_timeout     = 30
