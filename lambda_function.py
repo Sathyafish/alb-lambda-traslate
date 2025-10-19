@@ -4,7 +4,7 @@ import os
 from botocore.exceptions import ClientError
 
 # Initialize AWS Translate client
-translate_client = boto3.client('translate', region_name=os.environ.get('AWS_REGION', 'us-east-1'))
+translate_client = boto3.client('translate', region_name=os.environ.get('APP_REGION', 'us-east-1'))
 
 def lambda_handler(event, context):
     """
