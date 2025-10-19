@@ -156,7 +156,7 @@ resource "aws_iam_role" "lambda_role" {
 # IAM Policy for Lambda VPC access
 resource "aws_iam_role_policy_attachment" "lambda_vpc" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCExecutionRole"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
 # IAM Policy for AWS Translate
