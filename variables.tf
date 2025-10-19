@@ -42,3 +42,9 @@ variable "lambda_timeout" {
   type        = number
   default     = 30
 }
+
+variable "acm_certificate_arn" {
+  description = "ARN of the ACM certificate to use for HTTPS listener"
+  type        = string
+  default     = "dev"
+}

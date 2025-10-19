@@ -37,17 +37,10 @@ resource "aws_security_group" "alb" {
   vpc_id      = data.aws_vpc.existing.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/8"]
   }
 
   egress {
@@ -71,7 +64,7 @@ resource "aws_security_group" "lambda" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/8"]
   }
 
   tags = {
@@ -82,15 +75,16 @@ resource "aws_security_group" "lambda" {
 # Application Load Balancer
 resource "aws_lb" "main" {
   name               = "${var.project_name}-alb"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
-  subnets            = data.aws_subnet.public[*].id
+  subnets            = data.aws_subnet.private[*].id
 
   enable_deletion_protection = false
 
   tags = {
     Name = "${var.project_name}-alb"
+    "adsk:moniker" = "GOTOURL-C-UE1"
   }
 }
 
@@ -122,8 +116,11 @@ resource "aws_lb_target_group" "lambda" {
 # ALB Listener
 resource "aws_lb_listener" "main" {
   load_balancer_arn = aws_lb.main.arn
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.acm_certificate_arn  # Pass the certificate ARN
 
   default_action {
     type             = "forward"
@@ -173,7 +170,8 @@ resource "aws_iam_role_policy" "lambda_translate" {
           "translate:TranslateText",
           "translate:ListLanguages",
           "translate:DescribeTextTranslationJob",
-          "translate:ListTextTranslationJobs"
+          "translate:ListTextTranslationJobs",
+          "comprehend:DetectDominantLanguage"
         ]
         Resource = "*"
       }
@@ -189,13 +187,8 @@ resource "aws_lambda_function" "translate" {
   handler         = "lambda_function.lambda_handler"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   runtime         = "python3.9"
-  timeout         = 30
+  timeout         = 180
   memory_size     = 256
-
-  vpc_config {
-    subnet_ids         = data.aws_subnet.private[*].id
-    security_group_ids = [aws_security_group.lambda.id]
-  }
 
   environment {
     variables = {
