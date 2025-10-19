@@ -199,7 +199,7 @@ resource "aws_lambda_function" "translate" {
 
   environment {
     variables = {
-      AWS_REGION = var.aws_region
+      APP_REGION = var.aws_region
     }
   }
 
